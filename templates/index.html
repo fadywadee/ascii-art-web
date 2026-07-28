@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Art Generator</title>
+
+    <style>
+        /* إعادة ضبط التباعد للجميع */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* خلفية الصفحة بالكامل ونوع الخط */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* الكارت الخارجي المحتوي للنموذج */
+        .container {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        /* العنوان الرئيسي */
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #58a6ff;
+            text-align: center;
+        }
+
+        /* العناوين الفرعية والنصوص */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #8b949e;
+        }
+
+        /* صندوق إدخال النص textarea */
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: monospace;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        /* تنسيق خيارات أزرار الـ Radio */
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            cursor: pointer;
+            color: #c9d1d9;
+        }
+
+        .radio-group input[type="radio"] {
+            accent-color: #238636;
+            cursor: pointer;
+        }
+
+        /* زر الإرسال Submit */
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #238636;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #2ea043;
+        }
+
+        /* عنوان النتيجة */
+        .result-title {
+            margin-top: 30px;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            color: #58a6ff;
+        }
+
+        /* صندوق عرض الـ ASCII Art (مظهر التيرمينال) */
+        pre {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #3fb950; /* لون أخضر برمي يشبه الشاشة السوداء */
+            overflow-x: auto; /* إضافة شريط تمرير أفق عند كبر حجم الرسمة */
+            white-space: pre;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>ASCII Art Generator</h1>
+
+        <form method="POST" action="/ascii-art">
+
+            <label for="text">Enter your text:</label>
+            <textarea id="text" name="text" rows="5" placeholder="Type something here...">{{ .Text }}</textarea>
+
+            <label>Select banner:</label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="banner" value="standard" {{ if or (eq .Banner "standard") (not .Banner) }}checked{{ end }}>
+                    Standard
+                </label>
+
+                <label>
+                    <input type="radio" name="banner" value="shadow" {{ if eq .Banner "shadow" }}checked{{ end }}>
+                    Shadow
+                </label>
+
+                <label>
+                    <input type="radio" name="banner" value="thinkertoy" {{ if eq .Banner "thinkertoy" }}checked{{ end }}>
+                    Thinkertoy
+                </label>
+            </div>
+
+            <button type="submit">Generate</button>
+
+        </form>
+
+        <!-- عرض النتيجة إذا كانت موجودة -->
+        {{ if .Result }}
+            <h2 class="result-title">Result:</h2>
+            <pre>{{ .Result }}</pre>
+        {{ end }}
+    </div>
+
+</body>
+
+</html>
