@@ -1,84 +1,59 @@
 package main
 
 import (
-	"bufio"
-	"os"
+	"embed"
+	"fmt"
 	"strings"
 )
 
+var bannerFS embed.FS
+
 func loadBanner(filename string) ([]string, error) {
-	file, err := os.Open(filename)
+	data, err := bannerFS.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	lines := make([]string, 0, 855)
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		line := strings.TrimRight(scanner.Text(), "\r")
-		lines = append(lines, line)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
+	content := strings.ReplaceAll(string(data), "\r\n", "\n")
+	lines := strings.Split(content, "\n")
 	return lines, nil
 }
 
-func getCharLines(lines []string, c rune) []string {
-	// Calculate the start line index using the formula
+func getCharLines(lines []string, c rune) ([]string, error) {
 	startLine := int((c-32))*9 + 1
+	endLine := startLine + 8
 
-	// Collect the next 8 lines starting from startLine
-	endline := startLine + 7
-
-	// Return them as a slice
-	return lines[startLine : endline+1]
-}
-
-func renderLine(banner []string, text string) string {
-	var result strings.Builder
-
-	result.Grow(len(text) * 8 * 10)
-
-	for row := 0; row <= 7; row++ {
-		for _, ch := range text {
-			charLines := getCharLines(banner, ch)
-			result.WriteString(charLines[row])
-		}
-		result.WriteString("\n")
+	if startLine < 0 || endLine > len(lines) {
+		return nil, fmt.Errorf("line out of bounds")
 	}
 
-	return result.String()
+	return lines[startLine:endLine], nil
 }
 
 func render(banner []string, input string) string {
-	// 1. إزالة \r الخاص بالمتصفح ونظام الويندوز
 	input = strings.ReplaceAll(input, "\r\n", "\n")
 	input = strings.ReplaceAll(input, "\r", "")
 
-	// 2. تحويل السطر الجديد الحقيقي (\n) القادم من الـ textarea إلى "\\n" ليتقسم صح بـ strings.Split
-	input = strings.ReplaceAll(input, "\n", "\\n")
+	if isOnlyNewlines(input) {
+		return strings.Repeat("\n", len(input))
+	}
 
-	parts := strings.Split(input, "\\n")
+	input = strings.ReplaceAll(input, "\\n", "\n")
+	parts := strings.Split(input, "\n")
 	var result strings.Builder
 
-	result.Grow(len(input) * 8 * 10)
-
-	for i, part := range parts {
+	for _, part := range parts {
 		if part == "" {
-			if i < len(parts)-1 {
-				result.WriteString("\n")
-			}
+			result.WriteString("\n")
 			continue
 		}
 
-		for row := 0; row <= 7; row++ {
+		for row := 0; row < 8; row++ {
 			for _, ch := range part {
-				charLines := getCharLines(banner, ch)
+				charLines, err := getCharLines(banner, ch)
+				if err != nil {
+					continue
+				}
 				result.WriteString(charLines[row])
 			}
 			result.WriteString("\n")
@@ -89,21 +64,59 @@ func render(banner []string, input string) string {
 }
 
 func validateInput(input string, lines []string) (bool, rune) {
-	// 1. تنظيف \r قبل فحص الحروف
 	input = strings.ReplaceAll(input, "\r\n", "\n")
 	input = strings.ReplaceAll(input, "\r", "")
 
 	maxChar := (len(lines) / 9) + 32
 
 	for _, ch := range input {
-		/*
-			if ch == '\n' {
-				continue
-			}*/
-
+		if ch == '\n' || ch == '\t' {
+			continue
+		}
 		if ch < 32 || ch > rune(maxChar) {
 			return false, ch
 		}
 	}
 	return true, 0
+}
+
+func isOnlyNewlines(s string) bool {
+	for _, ch := range s {
+		if ch != '\n' {
+			return false
+		}
+	}
+	return true
+}
+
+// دالة وسيطة بتفصل الـ Processing عن الـ Web Handler
+func ProcessAsciiArt(text, bannerName string) (string, int, error) {
+	if text == "" {
+		return "", 400, fmt.Errorf("text is required")
+	}
+
+	var bannerFile string
+	switch bannerName {
+	case "standard":
+		bannerFile = "standard.txt"
+	case "shadow":
+		bannerFile = "shadow.txt"
+	case "thinkertoy":
+		bannerFile = "thinkertoy.txt"
+	default:
+		return "", 400, fmt.Errorf("invalid banner")
+	}
+
+	banner, err := loadBanner(bannerFile)
+	if err != nil {
+		return "", 404, fmt.Errorf("banner not found")
+	}
+
+	valid, badChar := validateInput(text, banner)
+	if !valid {
+		return "", 400, fmt.Errorf("unsupported character: %c", badChar)
+	}
+
+	result := render(banner, text)
+	return result, 200, nil
 }
