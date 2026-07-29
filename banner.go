@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// ملاحظة: لا تضع مسافة بين // و go:embed
 //go:embed standard.txt shadow.txt thinkertoy.txt
 var bannerFS embed.FS
 
