@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// ملاحظة: لا تضع مسافة بين // و go:embed
+//go:embed standard.txt shadow.txt thinkertoy.txt
 var bannerFS embed.FS
 
 func loadBanner(filename string) ([]string, error) {
@@ -15,6 +17,7 @@ func loadBanner(filename string) ([]string, error) {
 	}
 
 	content := strings.ReplaceAll(string(data), "\r\n", "\n")
+	content = strings.ReplaceAll(content, "\r", "")
 	lines := strings.Split(content, "\n")
 	return lines, nil
 }
@@ -89,11 +92,12 @@ func isOnlyNewlines(s string) bool {
 	return true
 }
 
-// دالة وسيطة بتفصل الـ Processing عن الـ Web Handler
 func ProcessAsciiArt(text, bannerName string) (string, int, error) {
 	if text == "" {
 		return "", 400, fmt.Errorf("text is required")
 	}
+
+	bannerName = strings.ToLower(strings.TrimSpace(bannerName))
 
 	var bannerFile string
 	switch bannerName {
