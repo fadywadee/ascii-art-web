@@ -4,17 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Art Generator</title>
+    <title>ASCII Art Generator شغاله يا انس بيه</title>
 
     <style>
-        /* إعادة ضبط التباعد للجميع */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        /* خلفية الصفحة بالكامل ونوع الخط */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #0d1117;
@@ -26,7 +24,6 @@
             padding: 20px;
         }
 
-        /* الكارت الخارجي المحتوي للنموذج */
         .container {
             background-color: #161b22;
             border: 1px solid #30363d;
@@ -37,7 +34,6 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
 
-        /* العنوان الرئيسي */
         h1 {
             font-size: 1.8rem;
             margin-bottom: 25px;
@@ -45,7 +41,6 @@
             text-align: center;
         }
 
-        /* العناوين الفرعية والنصوص */
         label {
             display: block;
             margin-bottom: 8px;
@@ -53,7 +48,6 @@
             color: #8b949e;
         }
 
-        /* صندوق إدخال النص textarea */
         textarea {
             width: 100%;
             padding: 12px;
@@ -72,7 +66,6 @@
             border-color: #58a6ff;
         }
 
-        /* تنسيق خيارات أزرار الـ Radio */
         .radio-group {
             display: flex;
             gap: 20px;
@@ -94,7 +87,6 @@
             cursor: pointer;
         }
 
-        /* زر الإرسال Submit */
         button {
             width: 100%;
             padding: 12px;
@@ -112,7 +104,6 @@
             background-color: #2ea043;
         }
 
-        /* عنوان النتيجة */
         .result-title {
             margin-top: 30px;
             margin-bottom: 12px;
@@ -120,15 +111,14 @@
             color: #58a6ff;
         }
 
-        /* صندوق عرض الـ ASCII Art (مظهر التيرمينال) */
         pre {
             background-color: #0d1117;
             border: 1px solid #30363d;
             border-radius: 6px;
             padding: 20px;
             font-family: 'Courier New', Courier, monospace;
-            color: #3fb950; /* لون أخضر برمي يشبه الشاشة السوداء */
-            overflow-x: auto; /* إضافة شريط تمرير أفق عند كبر حجم الرسمة */
+            color: #3fb950; 
+            overflow-x: auto; 
             white-space: pre;
             line-height: 1.2;
         }
@@ -167,7 +157,6 @@
 
         </form>
 
-        <!-- عرض النتيجة إذا كانت موجودة -->
         {{ if .Result }}
             <h2 class="result-title">Result:</h2>
             <pre>{{ .Result }}</pre>
